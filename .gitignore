@@ -1,0 +1,15 @@
+# Python / Venv
+venv/
+*.pyc
+__pycache__/
+.env
+
+# Node.js / Next.js
+node_modules/
+.next/
+.env.local
+npm-debug.log*
+package-lock.json
+
+# Arquivos de Sistema
+.DS_Store
