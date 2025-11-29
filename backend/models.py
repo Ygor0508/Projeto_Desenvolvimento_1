@@ -44,8 +44,22 @@ class BotSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     is_running = db.Column(db.Boolean, default=False)
-    trade_amount_usdt = db.Column(db.Numeric(10, 2), default=10.00)
-    max_open_positions = db.Column(db.Integer, default=5)
+    
+    # -- Estratégia e Operacional --
+    use_macro_regime = db.Column(db.Boolean, default=True)
+    trade_amount_usdt = db.Column(db.Float, default=10.0) # Valor fixo por compra
     whitelisted_symbols = db.Column(db.ARRAY(db.Text))
-    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # -- Configurações de Risco --
+    stop_loss_enabled = db.Column(db.Boolean, default=True)
+    stop_loss_percent = db.Column(db.Float, default=2.0)
+    
+    take_profit_enabled = db.Column(db.Boolean, default=True)
+    take_profit_percent = db.Column(db.Float, default=5.0)
+    
+    max_position_size_percent = db.Column(db.Float, default=10.0) # Mantido para referência
+    max_open_positions = db.Column(db.Integer, default=3)
+    risk_per_trade_percent = db.Column(db.Float, default=1.0)
+    max_daily_loss = db.Column(db.Float, default=500.0)
 
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
