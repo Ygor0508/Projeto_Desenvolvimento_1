@@ -281,13 +281,18 @@ class Config:
 
 base_directory = os.path.abspath(os.path.dirname(__file__))
 trading_directory = os.path.join(base_directory, "trading_data")
-secrets_file_path = os.path.join(trading_directory, "secrets.json") 
+secrets_file_path = os.path.join(trading_directory, "secrets.json")
 
-# Cria diretórios
+# --- DEFINIÇÃO DOS DIRETÓRIOS (ESSENCIAL) ---
+models_directory = os.path.join(trading_directory, "models")
+plots_directory = os.path.join(trading_directory, "feature_importance_plots")
+confusion_matrix_directory = os.path.join(trading_directory, "confusion_matrix_plots")
+
+# Cria diretórios se não existirem
 os.makedirs(trading_directory, exist_ok=True)
-os.makedirs(os.path.join(trading_directory, "feature_importance_plots"), exist_ok=True)
-os.makedirs(os.path.join(trading_directory, "confusion_matrix_plots"), exist_ok=True)
-os.makedirs(os.path.join(trading_directory, "models"), exist_ok=True)
+os.makedirs(models_directory, exist_ok=True)
+os.makedirs(plots_directory, exist_ok=True)
+os.makedirs(confusion_matrix_directory, exist_ok=True)
 
 # --- Variáveis Globais ---
 API_KEY = None
@@ -318,7 +323,6 @@ initialize_cipher()
 def load_from_db():
     """
     Tenta carregar as chaves diretamente do Banco de Dados (Neon).
-    Isso resolve o problema do Render apagar arquivos.
     """
     global API_KEY, API_SECRET, client
     
@@ -331,7 +335,6 @@ def load_from_db():
             user = User.query.first()
             if user and user.binance_api_key_encrypted:
                 try:
-                    # Descriptografa usando a chave do ambiente
                     API_KEY = cipher.decrypt(user.binance_api_key_encrypted).decode()
                     API_SECRET = cipher.decrypt(user.binance_api_secret_encrypted).decode()
                     
@@ -341,9 +344,9 @@ def load_from_db():
                 except Exception as e:
                     print(f"❌ [CONFIG] Erro ao descriptografar do banco: {e}")
     except Exception as e:
-        print(f"⚠️ [CONFIG] Não foi possível ler do banco agora (pode ser inicialização): {e}")
+        print(f"⚠️ [CONFIG] Não foi possível ler do banco agora: {e}")
         
-    # Fallback para arquivo local (apenas desenvolvimento)
+    # Fallback para arquivo local
     if os.path.exists(secrets_file_path):
         try:
             with open(secrets_file_path, 'r') as f:
@@ -360,19 +363,16 @@ def load_from_db():
     return False
 
 def save_api_keys(key, secret):
-    """Salva no arquivo (backup) e retorna as chaves encriptadas para salvar no banco"""
     try:
         encrypted_key = cipher.encrypt(key.encode())
         encrypted_secret = cipher.encrypt(secret.encode())
         
-        # Salva arquivo local (backup)
         with open(secrets_file_path, 'w') as f:
             json.dump({
                 'api_key': encrypted_key.decode(),
                 'api_secret': encrypted_secret.decode()
             }, f)
         
-        # Atualiza memória
         global API_KEY, API_SECRET, client
         API_KEY = key
         API_SECRET = secret
