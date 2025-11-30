@@ -283,10 +283,12 @@ base_directory = os.path.abspath(os.path.dirname(__file__))
 trading_directory = os.path.join(base_directory, "trading_data")
 secrets_file_path = os.path.join(trading_directory, "secrets.json")
 
-# --- DEFINIÇÃO DOS DIRETÓRIOS (ESSENCIAL) ---
+# --- DEFINIÇÃO DOS DIRETÓRIOS E ARQUIVOS DE LOG (ESSENCIAL) ---
 models_directory = os.path.join(trading_directory, "models")
 plots_directory = os.path.join(trading_directory, "feature_importance_plots")
 confusion_matrix_directory = os.path.join(trading_directory, "confusion_matrix_plots")
+log_file_path = os.path.join(trading_directory, "trading_log_v3.1.txt")
+training_log_file_path = os.path.join(trading_directory, "training_melhoria_v3.1.txt") # <--- A VARIÁVEL QUE ESTAVA FALTANDO
 
 # Cria diretórios se não existirem
 os.makedirs(trading_directory, exist_ok=True)
@@ -321,12 +323,7 @@ def initialize_cipher():
 initialize_cipher()
 
 def load_from_db():
-    """
-    Tenta carregar as chaves diretamente do Banco de Dados (Neon).
-    """
     global API_KEY, API_SECRET, client
-    
-    # Importação tardia para evitar ciclo
     from backend.models import User
     from backend.app import app
     
@@ -337,7 +334,6 @@ def load_from_db():
                 try:
                     API_KEY = cipher.decrypt(user.binance_api_key_encrypted).decode()
                     API_SECRET = cipher.decrypt(user.binance_api_secret_encrypted).decode()
-                    
                     client = Client(API_KEY, API_SECRET)
                     print("✅ [CONFIG] Chaves carregadas do Banco de Dados com sucesso!")
                     return True
@@ -346,7 +342,6 @@ def load_from_db():
     except Exception as e:
         print(f"⚠️ [CONFIG] Não foi possível ler do banco agora: {e}")
         
-    # Fallback para arquivo local
     if os.path.exists(secrets_file_path):
         try:
             with open(secrets_file_path, 'r') as f:
