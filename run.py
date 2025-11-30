@@ -94,39 +94,90 @@
 
 
 
+# # run.py
+# import time
+# import threading
+# from backend.app import app
+# from backend.models import db
+# from backend.bot.bot_manager import start_bot, stop_bot
+# import backend.config as config # Importa config para carregar chaves
+
+# def run_flask():
+#     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+
+# def initialize_system():
+#     print("🛠️  VERIFICANDO SISTEMA NA NUVEM...")
+#     try:
+#         with app.app_context():
+#             # 1. Cria tabelas se não existirem
+#             db.create_all()
+#             print("✅ Banco de Dados verificado.")
+            
+#             # 2. Tenta carregar chaves salvas no banco
+#             print("🔑 Tentando carregar chaves API...")
+#             if config.load_from_db():
+#                 print("✅ Chaves carregadas! Robô pronto.")
+#             else:
+#                 print("⚠️ Nenhuma chave encontrada. Configure no painel.")
+                
+#     except Exception as e:
+#         print(f"❌ Erro na inicialização: {e}")
+
+# if __name__ == '__main__':
+#     print("🚀 Iniciando Sistema de Trading...")
+    
+#     # Inicializa Banco e Chaves
+#     initialize_system()
+    
+#     flask_thread = threading.Thread(target=run_flask, daemon=True)
+#     flask_thread.start()
+    
+#     start_bot()
+    
+#     try:
+#         while True: time.sleep(1)
+#     except KeyboardInterrupt:
+#         stop_bot()
+
+
+
+
+
+
+
+
 # run.py
 import time
 import threading
 from backend.app import app
 from backend.models import db
 from backend.bot.bot_manager import start_bot, stop_bot
-import backend.config as config # Importa config para carregar chaves
+import backend.config as config
 
 def run_flask():
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 
 def initialize_system():
     print("🛠️  VERIFICANDO SISTEMA NA NUVEM...")
-    try:
-        with app.app_context():
-            # 1. Cria tabelas se não existirem
+    with app.app_context():
+        try:
+            # Tenta criar tabelas
             db.create_all()
-            print("✅ Banco de Dados verificado.")
+            print("✅ Tabelas verificadas/criadas.")
+        except Exception as e:
+            print(f"❌ Erro crítico ao criar tabelas: {e}")
             
-            # 2. Tenta carregar chaves salvas no banco
-            print("🔑 Tentando carregar chaves API...")
+        try:
+            # Tenta carregar chaves
             if config.load_from_db():
-                print("✅ Chaves carregadas! Robô pronto.")
+                print("✅ Chaves carregadas.")
             else:
-                print("⚠️ Nenhuma chave encontrada. Configure no painel.")
-                
-    except Exception as e:
-        print(f"❌ Erro na inicialização: {e}")
+                print("⚠️ Sem chaves.")
+        except Exception as e:
+            print(f"❌ Erro ao carregar chaves: {e}")
 
 if __name__ == '__main__':
-    print("🚀 Iniciando Sistema de Trading...")
-    
-    # Inicializa Banco e Chaves
+    print("🚀 Iniciando...")
     initialize_system()
     
     flask_thread = threading.Thread(target=run_flask, daemon=True)

@@ -168,36 +168,37 @@ def index(): return jsonify({'message': 'API Online'})
 # --- ROTA DE CONFIGURAÇÃO (ATUALIZADA) ---
 @api_bp.route('/config/api-keys', methods=['POST'])
 def save_api_keys_route():
-    """Salva as chaves no Banco de Dados para não perder no Render"""
     data = request.json
     api_key = data.get('apiKey')
     secret_key = data.get('secretKey')
 
     if not api_key or not secret_key:
-        return jsonify({'error': 'Chaves obrigatórias'}), 400
+        return jsonify({'error': 'Chaves são obrigatórias'}), 400
 
-    # 1. Processa chaves (criptografa e atualiza client em memória)
-    enc_key, enc_secret = config.save_api_keys(api_key, secret_key)
-    
-    if enc_key and enc_secret:
-        # 2. Salva no Banco de Dados (Persistência Real)
-        try:
-            # Tenta pegar o primeiro usuário ou cria admin se não existir
-            user = User.query.first()
-            if not user:
-                user = User(username='admin', password_hash='temp') # Senha dummy, será ignorada se já logado
-                db.session.add(user)
+    # 1. Processa chaves
+    try:
+        enc_key, enc_secret = config.save_api_keys(api_key, secret_key)
+        if not enc_key:
+            return jsonify({'error': 'Falha na criptografia das chaves'}), 500
             
-            user.binance_api_key_encrypted = enc_key
-            user.binance_api_secret_encrypted = enc_secret
-            db.session.commit()
-            
-            return jsonify({'success': True, 'message': 'Chaves salvas no Banco de Dados!'})
-        except Exception as e:
-            print(f"Erro ao salvar no banco: {e}")
-            return jsonify({'error': 'Erro de banco de dados'}), 500
-            
-    return jsonify({'error': 'Falha ao processar chaves'}), 500
+        # 2. Salva no Banco
+        user = User.query.first()
+        if not user:
+            user = User(username='admin', binance_api_key_encrypted=b'', binance_api_secret_encrypted=b'')
+            user.set_password('admin')
+            db.session.add(user)
+        
+        # Garante que estamos salvando bytes (Postgres BYTEA)
+        user.binance_api_key_encrypted = enc_key
+        user.binance_api_secret_encrypted = enc_secret
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Chaves salvas com sucesso!'})
+        
+    except Exception as e:
+        print(f"ERRO CRÍTICO AO SALVAR CHAVES: {e}")
+        # Retorna o erro real para o frontend (ajuda a debugar)
+        return jsonify({'error': f'Erro interno: {str(e)}'}), 500
 
 @api_bp.route('/check-config', methods=['GET'])
 def check_config(): 
