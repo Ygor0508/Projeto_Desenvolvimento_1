@@ -146,18 +146,68 @@
 
 
 
-# run.py
+# # run.py
+# import time
+# import threading
+# from backend.app import app
+# from backend.models import db
+# from backend.bot.bot_manager import start_bot, stop_bot
+# import backend.config as config
+
+# def run_flask():
+#     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+
+# def initialize_system():
+#     print("🛠️  VERIFICANDO SISTEMA NA NUVEM...")
+#     with app.app_context():
+#         try:
+#             # Tenta criar tabelas
+#             db.create_all()
+#             print("✅ Tabelas verificadas/criadas.")
+#         except Exception as e:
+#             print(f"❌ Erro crítico ao criar tabelas: {e}")
+            
+#         try:
+#             # Tenta carregar chaves
+#             if config.load_from_db():
+#                 print("✅ Chaves carregadas.")
+#             else:
+#                 print("⚠️ Sem chaves.")
+#         except Exception as e:
+#             print(f"❌ Erro ao carregar chaves: {e}")
+
+# if __name__ == '__main__':
+#     print("🚀 Iniciando...")
+#     initialize_system()
+    
+#     flask_thread = threading.Thread(target=run_flask, daemon=True)
+#     flask_thread.start()
+    
+#     start_bot()
+    
+#     try:
+#         while True: time.sleep(1)
+#     except KeyboardInterrupt:
+#         stop_bot()
+
+
+
+
+
+
+
+
+
 import time
 import threading
+from waitress import serve
 from backend.app import app
 from backend.models import db
 from backend.bot.bot_manager import start_bot, stop_bot
 import backend.config as config
 
-def run_flask():
-    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
-
 def initialize_system():
+    """Garante que tabelas e chaves existam antes de iniciar"""
     print("🛠️  VERIFICANDO SISTEMA NA NUVEM...")
     with app.app_context():
         try:
@@ -172,20 +222,37 @@ def initialize_system():
             if config.load_from_db():
                 print("✅ Chaves carregadas.")
             else:
-                print("⚠️ Sem chaves.")
+                print("⚠️ Sem chaves configuradas.")
         except Exception as e:
             print(f"❌ Erro ao carregar chaves: {e}")
 
+def start_server():
+    """Inicia o servidor web Waitress em background"""
+    print("🌍 Iniciando Servidor Web Profissional (Waitress) na porta 5000...")
+    # 'threads=6' garante que o site responda mesmo se o robô estiver ocupado
+    serve(app, host='0.0.0.0', port=5000, threads=6)
+
 if __name__ == '__main__':
-    print("🚀 Iniciando...")
+    print("🚀 Iniciando Sistema de Trading Completo...")
+    
+    # 1. Configuração Inicial
     initialize_system()
     
-    flask_thread = threading.Thread(target=run_flask, daemon=True)
-    flask_thread.start()
+    # 2. Inicia o Site (API) em uma thread separada
+    # daemon=True significa que se o programa principal fechar, o site fecha junto
+    server_thread = threading.Thread(target=start_server, daemon=True)
+    server_thread.start()
     
+    # 3. Inicia o Robô (O BotManager gerencia a thread interna dele)
+    print("🤖 Ligando motor do robô...")
     start_bot()
     
+    print("✅ Sistema Operacional! Aguardando comandos...")
+    
     try:
-        while True: time.sleep(1)
+        # Loop principal que mantém o programa vivo
+        while True:
+            time.sleep(1)
     except KeyboardInterrupt:
+        print("🛑 Parando sistema...")
         stop_bot()
