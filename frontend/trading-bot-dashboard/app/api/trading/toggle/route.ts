@@ -33,18 +33,37 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    const backendUrl = process.env.BACKEND_URL || 'http://127.0.0.1:5000';
+    // Tenta pegar BACKEND_URL (Vercel) ou NEXT_PUBLIC_API_URL (Legado) ou Localhost
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
+
+    console.log(`🔄 [PROXY] Recebido comando: ${body.action}`);
+    console.log(`👉 [PROXY] Encaminhando para: ${backendUrl}/api/trading/toggle`);
 
     const response = await fetch(`${backendUrl}/api/trading/toggle`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(body),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ [PROXY] Erro do Render (${response.status}):`, errorText);
+      return NextResponse.json(
+        { error: `Erro no Backend: ${response.status}`, details: errorText },
+        { status: response.status }
+      );
+    }
+
     const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    return NextResponse.json(data);
 
   } catch (error) {
-    return NextResponse.json({ error: 'Erro ao comunicar com o robô' }, { status: 500 });
+    console.error("🔥 [PROXY] Erro Crítico no Next.js:", error);
+    return NextResponse.json(
+      { error: 'Falha interna no servidor Vercel (Proxy)', details: String(error) },
+      { status: 500 }
+    );
   }
 }

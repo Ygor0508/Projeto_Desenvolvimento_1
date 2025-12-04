@@ -15,7 +15,7 @@ import { useToast } from "@/components/ui/use-toast"
 export function BacktestingPanel() {
   const [availableSymbols, setAvailableSymbols] = useState<string[]>([])
   const [selectedSymbols, setSelectedSymbols] = useState<string[]>([]) 
-  const [testPeriod, setTestPeriod] = useState("60")
+  const [testPeriod, setTestPeriod] = useState("30")
   const [useMacro, setUseMacro] = useState(false) 
   const [initialCapital, setInitialCapital] = useState("10000") 
   
