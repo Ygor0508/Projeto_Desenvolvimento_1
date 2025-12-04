@@ -16,7 +16,7 @@ export function BacktestingPanel() {
   const [availableSymbols, setAvailableSymbols] = useState<string[]>([])
   const [selectedSymbols, setSelectedSymbols] = useState<string[]>([]) 
   const [testPeriod, setTestPeriod] = useState("60")
-  const [useMacro, setUseMacro] = useState(true) 
+  const [useMacro, setUseMacro] = useState(false) 
   const [initialCapital, setInitialCapital] = useState("10000") 
   
   const [isRunning, setIsRunning] = useState(false)
