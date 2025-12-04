@@ -113,11 +113,12 @@ def trading_loop():
             if not bot_running: break
             try:
                 core.check_symbol_logic(symbol, model, scaler, regime)
+                time.sleep(2) # Pausa entre símbolos
             except Exception as e:
                 print(f"Erro no loop {symbol}: {e}")
         
-        # Pausa entre ciclos
-        time.sleep(10)
+        print("Ciclo completo finalizado. Pausa de 60s...")
+        time.sleep(60)
 
 def start_bot():
     # Importações Tardias para evitar Ciclo

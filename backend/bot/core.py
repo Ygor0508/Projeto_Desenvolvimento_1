@@ -138,6 +138,7 @@ def execute_order(symbol, side, qty, price=None):
     """
     Decide se envia ordem REAL ou SIMULADA baseada na config.
     """
+    print(f"DEBUG: LIVE_TRADING={config.LIVE_TRADING}, Client={config.client is not None}")
     # 1. Modo REAL
     if config.LIVE_TRADING and config.client:
         try:
