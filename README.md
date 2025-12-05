@@ -1,140 +1,111 @@
-# Trading Bot - Sistema Completo com IA
+# 🤖 Robô de Trading de Criptomoedas com IA (MVP)
 
-Este projeto consiste em um sistema de trading automatizado que utiliza inteligência artificial para tomar decisões de compra e venda de criptomoedas na exchange Binance. O sistema é composto por um backend em Python (Flask) que contém a lógica do bot e a API, e um frontend em React (Next.js) que serve como um dashboard para controle e monitoramento.
+> Projeto de Desenvolvimento 1 - Sistema automatizado para execução de estratégias de trading na Binance utilizando Análise Técnica e Machine Learning.
 
-## Arquitetura e Funcionalidades
+## 📋 Sobre o Projeto
 
-- **Backend (Python/Flask):**
-  - **API RESTful:** Para comunicação com o frontend, com endpoints para autenticação, controle do bot e visualização de dados.
-  - **Lógica de Trading com IA:** Utiliza modelos de Machine Learning (XGBoost e RandomForest) treinados com dados históricos para prever movimentos de preço.
-  - **Análise Técnica:** Incorpora uma vasta gama de indicadores técnicos (RSI, Bandas de Bollinger, ADX, etc.) para filtrar e confirmar os sinais da IA.
-  - **Gerenciamento de Risco:** Implementa estratégias de Take Profit e Stop Loss dinâmicos para otimizar saídas e proteger o capital.
-  - **Persistência de Dados:** Utiliza um banco de dados PostgreSQL para armazenar usuários, chaves de API (criptografadas), histórico de trades e configurações do bot.
-  - **Segurança:** Autenticação baseada em tokens JWT e criptografia das chaves da API da Binance.
+Este projeto visa democratizar o acesso a ferramentas de trading automatizado. Diferente de bots simples que usam apenas indicadores fixos, este sistema implementa uma **estratégia híbrida** que combina análise técnica clássica com modelos de Inteligência Artificial (XGBoost) para validar entradas, além de uma gestão de risco dinâmica baseada na volatilidade do mercado (ATR).
 
-- **Frontend (React/Next.js):**
-  - **Dashboard Interativo:** Interface para monitorar o status do bot, posições abertas, performance do portfólio e sinais de trading em tempo real.
-  - **Autenticação de Usuário:** Telas de login e registro seguras.
-  - **Controle Remoto:** Botões para iniciar e parar o bot de forma segura.
-  - **Visualização de Dados:** Gráficos e tabelas para análise de performance e histórico de operações.
+### 🚀 Principais Funcionalidades
 
-- **Banco de Dados (PostgreSQL):**
-  - Estrutura robusta para garantir a persistência e a integridade dos dados, permitindo que o bot recupere seu estado mesmo após reinicializações.
+* **Dashboard Interativo:** Monitoramento em tempo real de saldo, P&L (Lucro/Prejuízo) e posições abertas.
+* [cite_start]**Gestão de Risco Dinâmica:** Stop-Loss e Take-Profit calculados via **ATR (Average True Range)**, adaptando-se automaticamente se o mercado está calmo ou agitado.
+* [cite_start]**Inteligência Artificial:** Classificador **XGBoost** treinado para filtrar sinais falsos e calcular probabilidade de lucro antes da entrada.
+* [cite_start]**Segurança:** Chaves de API da Binance armazenadas com criptografia simétrica (Fernet) no banco de dados.
+* **Backtesting:** Motor de simulação que utiliza dados históricos para validar a eficácia da estratégia antes da operação real.
+* **Arquitetura Desacoplada:** Frontend (Next.js) e Backend (Python/Flask) independentes.
 
-## Stack Tecnológica
+---
 
-- **Backend:** Python, Flask, SQLAlchemy, Psycopg2, Flask-JWT-Extended, Flask-Cors, python-binance, TA, Scikit-learn, XGBoost.
-- **Frontend:** TypeScript, React, Next.js, Tailwind CSS, Recharts, Axios.
-- **Banco de Dados:** PostgreSQL.
+## 🛠️ Tecnologias Utilizadas
 
-## Pré-requisitos
+### Backend (Inteligência e API)
+* **Linguagem:** Python 3.8+
+* **Framework:** Flask (API RESTful)
+* **IA & Dados:** Scikit-learn, XGBoost, Pandas, TA-Lib
+* **Integração:** python-binance
+* **Segurança:** Fernet (Cryptography)
 
-- Python 3.11 ou superior
-- Node.js e npm
-- PostgreSQL
-- Git
+### Frontend (Interface)
+* **Framework:** Next.js 14 (React)
+* **Linguagem:** TypeScript
+* **Estilização:** Tailwind CSS
+* **Componentes:** Shadcn/UI
+* **Gráficos:** Recharts
 
-## Guia de Instalação e Execução
+### Banco de Dados
+* **SGBD:** PostgreSQL (NeonDB)
+* **ORM:** SQLAlchemy
 
-Siga os passos abaixo para configurar e executar o ambiente de desenvolvimento.
+---
 
-### 1. Configuração do Banco de Dados
+## ⚙️ Instalação e Execução
 
-1.  **Instale o PostgreSQL** no seu sistema.
-2.  Inicie o serviço do PostgreSQL.
-3.  Crie o banco de dados e o usuário para a aplicação:
+Como o projeto possui uma arquitetura desacoplada, é necessário rodar o servidor (Back-end) e a interface (Front-end) simultaneamente.
 
-    ```sql
-    CREATE DATABASE trading_bot_db;
-    CREATE USER trading_bot_user WITH PASSWORD 'password';
-    GRANT ALL PRIVILEGES ON DATABASE trading_bot_db TO trading_bot_user;
-    ```
+### Pré-requisitos
+* Python 3.8+ e Node.js instalados.
+* Banco de dados PostgreSQL criado (local ou nuvem).
+* Conta na Binance (para obter API Key e Secret Key).
 
-4.  Execute o script `setup_db.sql` (localizado na raiz do projeto) para criar as tabelas necessárias. Pode ser necessário fornecer a senha (`password`) durante a execução.
+### Passo 1: Configuração do Back-end
 
-    ```bash
-    psql -h localhost -d trading_bot_db -U trading_bot_user -f setup_db.sql
-    ```
+1. Acesse a pasta do backend:
+   ```bash
+   cd backend
 
-### 2. Configuração do Backend
+2. Crie e ative o ambiente virtual:
+    # Windows
+    python -m venv venv
+        venv\Scripts\activate
 
-1.  Navegue até a raiz do projeto.
-2.  Instale as dependências do Python:
+    # Linux/Mac
+    python3 -m venv venv
+    source venv/bin/activate
 
-    ```bash
+3. Instale as bibliotecas:
     pip install -r requirements.txt
-    ```
-    *(Nota: Um arquivo `requirements.txt` será gerado na próxima etapa)*
 
-3.  Gere o arquivo `requirements.txt` (opcional, mas recomendado):
+4. Configure como variáveis ​​de ambiente:
+    Crie um arquivo .envna pasta backend.
 
-    ```bash
-    pip freeze > requirements.txt
-    ```
+    Adicione a URL do seu banco de dados:DATABASE_URL=postgresql://user:password@host:port/dbname
 
-4.  Inicie o servidor do backend:
-
-    ```bash
+5. Inicialize o banco e rode o servidor:
+    python criar_tabelas.py
     python run.py
-    ```
 
-    O servidor estará em execução em `http://localhost:5000`.
+    O servidor iniciará emhttp://localhost:5000
 
-### 3. Configuração do Frontend
+### Passo 2: Configuração do Front-end
 
-1.  Navegue até o diretório do frontend:
-
-    ```bash
+1. Em um novo terminal, acesse a pasta do frontend:
     cd frontend/trading-bot-dashboard
-    ```
 
-2.  Crie um arquivo de ambiente `.env.local` na raiz do diretório `frontend/trading-bot-dashboard` e adicione a URL da API do backend:
+2. Instale as partes:
+    npm install
 
-    ```
-    NEXT_PUBLIC_API_URL=http://localhost:5000/api
-    ```
-
-3.  Instale as dependências do Node.js. Pode ser necessário usar a flag `--legacy-peer-deps` devido a conflitos de versão entre as bibliotecas.
-
-    ```bash
-    npm install --legacy-peer-deps
-    ```
-
-4.  Inicie o servidor de desenvolvimento do frontend:
-
-    ```bash
+3. Execute o servidor de desenvolvimento:
     npm run dev
-    ```
 
-    A aplicação estará acessível em `http://localhost:3000` (ou outra porta, caso a 3000 esteja em uso).
+4. Acesse o aplicativo no navegador:
+    Abrahttp://localhost:3000
 
-## Uso
+📊 Backtest vs. Produção
+O sistema foi projetado para garantir a consistência entre a simulação e a realidade:
 
-1.  Abra o navegador e acesse `http://localhost:3000`.
-2.  Crie uma nova conta na tela de **Registro**, fornecendo um nome de usuário, senha e suas chaves da API da Binance.
-3.  Faça **Login** com as credenciais que você acabou de criar.
-4.  Você será redirecionado para o dashboard, onde poderá iniciar/parar o bot e monitorar sua atividade.
+![alt text](image.png)
 
-## Estrutura do Projeto
+Nota: Embora a interface permita definir porcentagens fixas, o núcleo matemático do robô prioriza o uso do ATR para garantir a segurança estatística em mercados voláteis
 
-```
-/
-├── backend/                # Código-fonte do backend (Flask)
-│   ├── api/                # Módulo da API (rotas)
-│   ├── bot/                # Lógica do bot de trading
-│   ├── utils/              # Funções utilitárias (segurança)
-│   ├── __init__.py         # Fábrica da aplicação Flask
-│   ├── config.py           # Configurações
-│   ├── database.py         # Configuração do banco de dados
-│   └── models.py           # Modelos de dados (SQLAlchemy)
-├── frontend/               # Código-fonte do frontend (Next.js)
-│   └── trading-bot-dashboard/
-│       ├── app/            # Páginas e layouts
-│       ├── components/     # Componentes React
-│       ├── lib/            # Módulos auxiliares (ex: api.ts)
-│       └── ...
-├── run.py                  # Script para iniciar o servidor backend
-├── setup_db.sql            # Script de inicialização do banco de dados
-└── README.md               # Esta documentação
-```
+🔒 Segurança
+A segurança é prioridade neste projeto:
 
+Criptografia: As credenciais da Binance (API Key e Secret) nunca são salvas em texto plano. Elas são criptografadas antes da persistência no banco.
+
+Comunicação: O Backend e Frontend se comunicam via JSON/HTTPS.
+
+Execução Local: As chaves permanecem no ambiente do usuário (ou servidor privado), não sendo compartilhadas com terceiros.
+
+📝 Autor
+Desenvolvido por Ygor Campos da Rosa como parte do Projeto de Desenvolvimento 1.
